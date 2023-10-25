@@ -85,11 +85,13 @@ class BankSoalController extends Controller
 
             if($request->tipe_pilihan === 'ya_tidak'){
                 $dataSoal['yes_no'] = 1;
+            }else if($request->tipe_pilihan === "essay"){
+                $dataSoal['tipe'] = "essay";
             }
 
             $insertSoal = DB::table('soals')->insertGetId($dataSoal);
 
-            if($request->tipe_pilihan !== 'ya_tidak'){
+            if($request->tipe_pilihan !== 'ya_tidak' && $request->tipe_pilihan !== 'essay'){
                 foreach($request->pilihan as $key => $value){
                     DB::table('pilihan_gandas')->insert([
                         'soal_id' => $insertSoal,
@@ -111,7 +113,7 @@ class BankSoalController extends Controller
             return redirect()->route('admin.data.bank-soal.index')->with('success', "Berhasil Tambah Bank Soal");
         } catch (Exception $e) {
             DB::rollBack();
-
+            dd($e);
             return redirect()->back()->with('error', 'Gagal simpan data server error');
         }
     }

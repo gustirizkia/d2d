@@ -46,6 +46,9 @@
                       <li class="nav-item" role="presentation">
                         <a href="#tabs-profile-1" class="nav-link" tipe-pilihan="ya_tidak" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1">Hanya Ya atau Tidak</a>
                       </li>
+                      <li class="nav-item" role="presentation">
+                        <a href="#essay" class="nav-link" tipe-pilihan="essay" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1">Essay</a>
+                      </li>
                     </ul>
                   </div>
                   <div class="card-body">
@@ -66,16 +69,13 @@
                       <div class="tab-pane" id="tabs-profile-1" role="tabpanel">
                         <h4>Hanya Iya atau Tidak</h4>
                       </div>
+                      <div class="tab-pane" id="essay" role="tabpanel">
+                        <h4>Essay</h4>
+                      </div>
                     </div>
                   </div>
                 </div>
                 {{-- select type pilihan end --}}
-
-                {{-- tambah skip logik --}}
-                {{-- <div class="add_skip rounded d-flex flex-column justify-content-center align-items-center">
-                    <div class="fw-bold text-center">Tambah Skip Logik</div>
-                </div> --}}
-                {{-- tambah skip logik end --}}
 
 
                 <div class="mt-5">

@@ -98,6 +98,7 @@ class SurveyApiController extends Controller
 
     public function selesaiQuiz(Request $request)
     {
+        
         $validasi = Validator::make($request->all(), [
             'pilihan' => 'required',
             'image' => 'required|image'
@@ -111,40 +112,64 @@ class SurveyApiController extends Controller
         }
 
         $pilihan = json_decode($request->pilihan);
+        $jawabanEssay = json_decode($request->jawaban_essay_user);
+
+        // return response()->json([
+        //     $pilihan, 
+        //     $jawabanEssay,
+        //     $request->all()
+        // ]);
 
         DB::beginTransaction();
 
         try {
             $target = DB::table("data_targets")->find($request->target_id);
+
             if($target->foto_bersama){
                 return response()->json("Image ", 422);
             }
 
-            foreach($pilihan as $item)
-            {
-
-                $formData = [
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                        'data_target_id' => $target->id,
-                        'kecamatan_id' => $target->kecamatan_id,
-                        'soal_id' => $item->soal_id
-                ];
-
-                // return response()->json($formData, 422);
-
-                if($item->yes_no){
-                    $formData['yes_no'] = $item->yes_no;
-                    DB::table("pilihan_targets")->insertGetId($formData);
-                }else{
-                    $formData['pilihan_ganda_id'] = $item->pilihan_id;
-                    DB::table("pilihan_targets")->insertGetId($formData);
+            if (count($jawabanEssay)) {
+                foreach($jawabanEssay as $je){
+                    DB::table('soals')->where("id", $je->soal_id)
+                            ->update([
+                                "jawaban" => $je->jawaban_user,
+                                'updated_at' => now()
+                            ]);
                 }
             }
 
+            if(count($pilihan)){
+                foreach($pilihan as $item)
+                {
+    
+                    $formData = [
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                            'data_target_id' => $target->id,
+                            'kecamatan_id' => $target->kecamatan_id,
+                            'soal_id' => $item->soal_id
+                    ];
+    
+                    // return response()->json($formData, 422);
+    
+                    if($item->yes_no){
+                        $formData['yes_no'] = $item->yes_no;
+                        DB::table("pilihan_targets")->insertGetId($formData);
+                    }else{
+                        $formData['pilihan_ganda_id'] = $item->pilihan_id;
+                        DB::table("pilihan_targets")->insertGetId($formData);
+                    }
+                }
+            }
+
+
             $image = $request->image->store("foto-bersama", 'public');
             $inserTarget = DB::table("data_targets")->where('id', $target->id)->update([
-                'foto_bersama' => $image
+                'foto_bersama' => $image,
+                "latitude" => $request->latitude,
+                "longitude" => $request->longitude,
+                "updated_at" => now(),
             ]);
 
 
@@ -153,7 +178,7 @@ class SurveyApiController extends Controller
         } catch (Exception $th) {
             DB::rollBack();
 
-            return response()->json(["error server", $th->getMessage(), $request->all()], 422);
+            return response()->json(["error server", $th->getMessage(), $request->all(), $th], 500);
 
         }
 
